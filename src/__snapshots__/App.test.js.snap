@@ -1,5 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`events checkbox click 1`] = `
+<div>
+  <input
+    type="checkbox"
+  />
+</div>
+`;
+
 exports[`renders learn react link 1`] = `
 <DocumentFragment>
   <div>
