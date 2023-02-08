@@ -1,6 +1,5 @@
 import { render, screen } from "@testing-library/react";
 import { App } from "./App";
-
 it("renders learn react link", async () => {
   render(<App />);
   // expect(screen.queryByText(/Searches for React/i)).toBeNull();
@@ -9,4 +8,5 @@ it("renders learn react link", async () => {
   expect(screen.getByLabelText(/search/i)).not.toBeRequired();
   expect(screen.getByLabelText(/search/i)).toBeEmpty();
   expect(screen.getByLabelText(/search/i)).toHaveAttribute("id");
+
 });
