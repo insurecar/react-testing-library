@@ -1,10 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import { App } from "./App";
 
-test("renders learn react link", () => {
-  // render(<App />);
-  // const linkElement = screen.getByText(/learn react/i);
-  // expect(linkElement).toBeInTheDocument();
-  const { asFragment } = render(<App />);
-  expect(asFragment(<App />)).toMatchSnapshot();
+it("renders learn react link", async () => {
+  render(<App />);
+  // expect(screen.queryByText(/Searches for React/i)).toBeNull();
+  expect(screen.queryByText(/Loged in as/i)).toBeNull();
+  expect(await screen.findByText(/Logged in as/i)).toBeInTheDocument();
+  expect(screen.getByLabelText(/search/i)).not.toBeRequired();
+  expect(screen.getByLabelText(/search/i)).toBeEmpty();
+  expect(screen.getByLabelText(/search/i)).toHaveAttribute("id");
 });
