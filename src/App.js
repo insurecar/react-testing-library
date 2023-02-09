@@ -1,42 +1,36 @@
-import { useState, useEffect } from "react";
+import React, { useState } from "react";
+import axios from "axios";
 
-const getUser = () => Promise.resolve({ id: 1, name: "Rostyslav" });
-
-const Search = ({ value, onChange, children }) => (
-  <div>
-    <label htmlFor="search">{children}</label>
-    <input
-      id="search"
-      type="text"
-      value={value}
-      onChange={onChange}
-      placeholder=""
-      alt=""
-    />
-  </div>
-);
+const URL = "http://hn.algolia.com/api/v1/search";
 
 export const App = () => {
-  const [search, setSearch] = useState("");
-  const [user, setUser] = useState("");
+  const [news, setNews] = useState([]);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const loadUser = async () => {
-      const user = await getUser();
-      setUser(user);
-    };
-    loadUser();
-  }, []);
-
-  const handleChange = ({ target: { value } }) => setSearch(() => value);
+  const handleFetch = async () => {
+    try {
+      const result = await axios.get(`${URL}?query=React`);
+      setNews(result.data.hits);
+    } catch (error) {
+      setError(error);
+    }
+  };
 
   return (
     <div>
-      {user && <h2>Logged in as {user.name}</h2>}
-      <Search value={search} onChange={handleChange}>
-        Search:
-      </Search>
-      <p>Searches for {search ? search : ""}</p>
+      <button type="button" onClick={handleFetch}>
+        Fetch News
+      </button>
+
+      {error && <span>Something went wrong...</span>}
+
+      <ul>
+        {news.map(({ objectID, url, title }) => (
+          <li key={objectID}>
+            <a href={url}>{title}</a>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
