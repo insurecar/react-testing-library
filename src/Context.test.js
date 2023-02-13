@@ -1,52 +1,55 @@
-import { useEffect } from "react";
-import { createPortal } from "react-dom";
+import { useContext, createContext, useState } from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-const modalRoot = document.createElement("div");
-modalRoot.setAttribute("id", "modal-root");
-document.body.appendChild(modalRoot);
+const AuthContext = createContext();
 
-const Modal = ({ onClose, children }) => {
-  const el = document.createElement("div");
+const AuthProvider = ({ children }) => {
+  const [isLoggedIn, toggleLoginStatus] = useState(false);
+  const toogleLogin = () => toggleLoginStatus((prev) => !prev);
 
-  useEffect(() => {
-    modalRoot.appendChild(el);
-    return () => modalRoot.removeChild(el);
-  });
-
-  return createPortal(
-    <div onClick={onClose}>
-      <div onClick={(e) => e.stopPropagation()}>
-        {children}
-        <button onClick={onClose}>Close</button>
-      </div>
-    </div>,
-    el
+  return (
+    <AuthContext.Provider value={{ toogleLogin, isLoggedIn }}>
+      <div>Message: {children}</div>
+    </AuthContext.Provider>
   );
 };
 
-describe("Portal", () => {
-  it("modal shows the children and a close button", () => {
-    const handleClose = jest.fn();
+const ConsumerComponent = () => {
+  const { isLoggedIn, toogleLogin } = useContext(AuthContext);
+  return (
+    <>
+      <input type="button" value="Login" onClick={toogleLogin} />
+      {isLoggedIn ? "Welcome" : "Please, log in"}
+    </>
+  );
+};
+
+describe("Context", () => {
+  it("ConsumerComponent shows default value", () => {
     render(
-      <Modal onClose={handleClose}>
-        <div>My Portal</div>
-      </Modal>
+      <AuthProvider>
+        <ConsumerComponent />
+      </AuthProvider>
     );
-    expect(screen.getByText(/my portal/i)).toBeInTheDocument();
-    userEvent.click(screen.getByText(/close/i));
-    expect(handleClose).toHaveBeenCalledTimes(1);
+    expect(screen.getByText(/^Message:/i)).toHaveTextContent(
+      "Message: Please, log in"
+    );
   });
 
-  it("should be unmounted", () => {
-    const { unmount } = render(
-      <Modal>
-        <div>My Portal</div>
-      </Modal>
+  it("ConsumerComponent toggle value", () => {
+    render(
+      <AuthProvider>
+        <ConsumerComponent />
+      </AuthProvider>
     );
-    expect(screen.getByText(/my portal/i)).toBeInTheDocument();
-    unmount();
-    expect(screen.queryByText(/my portal/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/^Message:/i)).toHaveTextContent(
+      "Message: Please, log in"
+    );
+    userEvent.click(screen.getByRole("button"));
+
+    expect(screen.getByText(/^Message:/i)).toHaveTextContent(
+      "Message: Welcome"
+    );
   });
 });
